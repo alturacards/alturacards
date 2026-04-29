@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ProductCategory {
+  SINGLE_CARD
+  BOOSTER_PACK
+  BUNDLE
+  ETB
+}
+
+enum PriceSource {
+  MANUAL
+  TCGPLAYER_MARKET
+  LAST_SOLD
+}
+
+enum SubmissionStatus {
+  PENDING
+  RECEIVED
+  REVIEWED
+  APPROVED
+  REJECTED
+  PAID
+}
+
+enum CardCondition {
+  MINT
+  NEAR_MINT
+}
+
+model InventoryItem {
+  id                 String          @id @default(cuid())
+  name               String
+  category           ProductCategory
+  setName            String?
+  sku                String?         @unique
+  imageUrl           String
+  inventory          Int             @default(0)
+  manualPrice        Float?
+  currentPrice       Float           @default(0)
+  priceSource        PriceSource     @default(MANUAL)
+  tcgplayerProductId String?
+  tcgplayerSkuId     String?
+  lastSoldPrice      Float?
+  lastPriceUpdated   DateTime?
+  description        String?
+  cardNumber         String?
+  rarity             String?
+  featured           Boolean         @default(false)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+}
+
+model BuylistItem {
+  id              String   @id @default(cuid())
+  name            String
+  setName         String?
+  cardNumber      String?
+  rarity          String?
+  imageUrl        String
+  buyPrice        Float
+  acceptsMint     Boolean  @default(true)
+  acceptsNearMint Boolean  @default(false)
+  active          Boolean  @default(true)
+  featured        Boolean  @default(false)
+  description     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  submissionItems SellSubmissionItem[]
+}
+
+model SellSubmission {
+  id             String           @id @default(cuid())
+  fullName       String
+  email          String
+  phone          String?
+  buylistId      String           @unique
+  notes          String?
+  status         SubmissionStatus @default(PENDING)
+  estimatedTotal Float            @default(0)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  items SellSubmissionItem[]
+}
+
+model SellSubmissionItem {
+  id              String        @id @default(cuid())
+  submissionId    String
+  buylistItemId   String
+  cardName        String
+  setName         String?
+  cardNumber      String?
+  quantity        Int
+  condition       CardCondition
+  offeredBuyPrice Float
+  lineTotal       Float
+  createdAt       DateTime      @default(now())
+
+  submission  SellSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  buylistItem BuylistItem    @relation(fields: [buylistItemId], references: [id], onDelete: Restrict)
+}
