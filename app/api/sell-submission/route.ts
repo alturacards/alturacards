@@ -100,7 +100,7 @@ export async function POST(req: Request) {
               cardName: item.name,
               setName: item.setName || null,
               cardNumber: item.cardNumber || null,
-              condition: item.condition,
+               condition: item.condition as CardCondition,
               quantity,
               offeredBuyPrice,
               lineTotal: offeredBuyPrice * quantity,
