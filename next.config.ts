@@ -4,7 +4,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; img-src 'self' https://images.pokemontcg.io data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self';",
+      "default-src 'self'; img-src 'self' https://images.pokemontcg.io data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; frame-src https://checkout.stripe.com;",
   },
   {
     key: "X-Frame-Options",
@@ -22,14 +22,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
-  remotePatterns: [
-    {
-      protocol: "https",
-      hostname: "images.pokemontcg.io",
-      pathname: "/**",
-    },
-  ],
-},
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.pokemontcg.io",
+        pathname: "/**",
+      },
+    ],
+  },
 
   async headers() {
     return [
