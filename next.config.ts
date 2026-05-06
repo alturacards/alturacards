@@ -22,8 +22,14 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["images.pokemontcg.io"],
-  },
+  remotePatterns: [
+    {
+      protocol: "https",
+      hostname: "images.pokemontcg.io",
+      pathname: "/**",
+    },
+  ],
+},
 
   async headers() {
     return [
