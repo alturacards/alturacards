@@ -1,6 +1,5 @@
-// app/api/sell-submissions/route.ts
-
 import { NextResponse } from "next/server";
+import { CardCondition } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
   sendSellSubmissionConfirmationEmail,
@@ -8,10 +7,11 @@ import {
 } from "@/lib/email";
 
 type SellSubmissionItem = {
+  buylistItemId: string;
   name: string;
   setName?: string;
   cardNumber?: string;
-  condition: string;
+  condition: CardCondition;
   quantity: number;
   estimatedPrice: number;
 };
@@ -41,15 +41,31 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!items || !Array.isArray(items) || items.length === 0) {
+    if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { error: "At least one card is required." },
         { status: 400 }
       );
     }
 
-    const estimatedTotal = items.reduce((total, item) => {
-      return total + Number(item.estimatedPrice || 0) * Number(item.quantity || 1);
+    const validItems = items.filter(
+      (item) =>
+        item.buylistItemId &&
+        item.name &&
+        item.condition &&
+        Number(item.quantity) > 0 &&
+        Number(item.estimatedPrice) > 0
+    );
+
+    if (validItems.length === 0) {
+      return NextResponse.json(
+        { error: "No valid cards were submitted." },
+        { status: 400 }
+      );
+    }
+
+    const estimatedTotal = validItems.reduce((total, item) => {
+      return total + Number(item.estimatedPrice) * Number(item.quantity);
     }, 0);
 
     if (estimatedTotal < 50) {
@@ -59,8 +75,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const totalCards = items.reduce((total, item) => {
-      return total + Number(item.quantity || 1);
+    const totalCards = validItems.reduce((total, item) => {
+      return total + Number(item.quantity);
     }, 0);
 
     const buylistId = `ALT-${Date.now()}`;
@@ -68,21 +84,28 @@ export async function POST(req: Request) {
     const submission = await prisma.sellSubmission.create({
       data: {
         buylistId,
-        customerName,
-        customerEmail,
+        fullName: customerName,
+        email: customerEmail,
         phone: phone || null,
         notes: notes || null,
         estimatedTotal,
         status: "PENDING",
         items: {
-          create: items.map((item) => ({
-            name: item.name,
-            setName: item.setName || null,
-            cardNumber: item.cardNumber || null,
-            condition: item.condition,
-            quantity: Number(item.quantity || 1),
-            estimatedPrice: Number(item.estimatedPrice || 0),
-          })),
+          create: validItems.map((item) => {
+            const quantity = Number(item.quantity);
+            const offeredBuyPrice = Number(item.estimatedPrice);
+
+            return {
+              buylistItemId: item.buylistItemId,
+              cardName: item.name,
+              setName: item.setName || null,
+              cardNumber: item.cardNumber || null,
+              condition: item.condition,
+              quantity,
+              offeredBuyPrice,
+              lineTotal: offeredBuyPrice * quantity,
+            };
+          }),
         },
       },
       include: {
@@ -115,22 +138,19 @@ export async function POST(req: Request) {
             .map(
               (item) => `
                 <li>
-                  ${item.quantity}x ${item.name}
+                  ${item.quantity}x ${item.cardName}
                   ${item.setName ? ` — ${item.setName}` : ""}
                   ${item.cardNumber ? ` #${item.cardNumber}` : ""}
                   — ${item.condition}
-                  — $${item.estimatedPrice.toFixed(2)} each
+                  — $${item.offeredBuyPrice.toFixed(2)} each
+                  — Line total: $${item.lineTotal.toFixed(2)}
                 </li>
               `
             )
             .join("")}
         </ul>
 
-        ${
-          notes
-            ? `<h2>Customer notes</h2><p>${notes}</p>`
-            : ""
-        }
+        ${notes ? `<h2>Customer notes</h2><p>${notes}</p>` : ""}
       `,
     });
 
