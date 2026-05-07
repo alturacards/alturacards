@@ -100,7 +100,11 @@ export async function POST(req: Request) {
               cardName: item.name,
               setName: item.setName || null,
               cardNumber: item.cardNumber || null,
+<<<<<<< HEAD
                condition: item.condition as CardCondition,
+=======
+              condition: item.condition,
+>>>>>>> 2caab91 (Fix cart suspense and build errors)
               quantity,
               offeredBuyPrice,
               lineTotal: offeredBuyPrice * quantity,

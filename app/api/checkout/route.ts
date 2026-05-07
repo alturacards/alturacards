@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { prisma } from "@/lib/prisma";
 
-const secretKey = process.env.STRIPE_SECRET_KEY;
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
 
-if (!secretKey) {
+if (!stripeSecretKey) {
   throw new Error("Missing STRIPE_SECRET_KEY");
 }
 
-const stripe = new Stripe(secretKey);
+const stripe = new Stripe(stripeSecretKey);
 
 type CartItem = {
   name: string;
@@ -28,8 +29,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const validItems = cart.filter(
-      (item) =>
+    const validItems = cart.filter((item) => {
+      return (
         item &&
         typeof item.name === "string" &&
         item.name.trim().length > 0 &&
@@ -39,7 +40,8 @@ export async function POST(req: NextRequest) {
         typeof item.quantity === "number" &&
         Number.isInteger(item.quantity) &&
         item.quantity > 0
-    );
+      );
+    });
 
     if (validItems.length === 0) {
       return NextResponse.json(
@@ -48,27 +50,67 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const origin =
-      req.headers.get("origin") ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3000";
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || req.headers.get("origin");
+
+    if (!siteUrl) {
+      return NextResponse.json(
+        { error: "Missing NEXT_PUBLIC_SITE_URL" },
+        { status: 500 }
+      );
+    }
+
+    const totalAmount = validItems.reduce((sum, item) => {
+      return sum + item.price * item.quantity;
+    }, 0);
+
+    const order = await prisma.order.create({
+      data: {
+        totalAmount,
+        currency: "aud",
+        status: "PENDING",
+        items: {
+          create: validItems.map((item) => ({
+            name: item.name.trim(),
+            price: item.price,
+            quantity: item.quantity,
+            imageUrl: item.image || null,
+          })),
+        },
+      },
+    });
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
+
       line_items: validItems.map((item) => ({
         quantity: item.quantity,
         price_data: {
           currency: "aud",
+          unit_amount: Math.round(item.price * 100),
           product_data: {
-            name: item.name,
+            name: item.name.trim(),
             ...(item.image ? { images: [item.image] } : {}),
           },
-          unit_amount: Math.round(item.price * 100),
         },
       })),
-      success_url: `${origin}/cart?success=true`,
-      cancel_url: `${origin}/cart`,
+
+      metadata: {
+        orderId: order.id,
+      },
+
+      success_url: `${siteUrl}/cart?success=true&orderId=${order.id}`,
+      cancel_url: `${siteUrl}/cart?cancelled=true`,
+    });
+
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        stripeSessionId: session.id,
+      },
     });
 
     if (!session.url) {
@@ -78,7 +120,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({
+      url: session.url,
+    });
   } catch (error) {
     console.error("Stripe checkout error:", error);
 

@@ -1,31 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { prisma } from "@/lib/prisma";
 
-const secretKey = process.env.STRIPE_SECRET_KEY;
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-if (!secretKey) {
-  throw new Error("Missing STRIPE_SECRET_KEY");
-}
-
-const stripe = new Stripe(secretKey);
-
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get("stripe-signature");
 
   if (!signature) {
-    return NextResponse.json(
-      { error: "Missing Stripe signature" },
-      { status: 400 }
-    );
-  }
-
-  if (!webhookSecret) {
-    return NextResponse.json(
-      { error: "Missing STRIPE_WEBHOOK_SECRET" },
-      { status: 500 }
-    );
+    return new NextResponse("Missing stripe-signature", { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -33,22 +18,37 @@ export async function POST(req: Request) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (error) {
-    console.error("Webhook signature verification failed:", error);
-
-    return NextResponse.json(
-      { error: "Invalid webhook signature" },
-      { status: 400 }
-    );
+    console.error("❌ Webhook signature verification failed:", error);
+    return new NextResponse("Webhook error", { status: 400 });
   }
 
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object as Stripe.Checkout.Session;
+  try {
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const orderId = session.metadata?.orderId;
 
-    console.log("✅ Payment confirmed by Stripe");
-    console.log("Session ID:", session.id);
-    console.log("Customer email:", session.customer_details?.email);
-    console.log("Amount paid:", session.amount_total);
+      if (!orderId) {
+        console.error("❌ Missing orderId metadata");
+        return NextResponse.json({ received: true });
+      }
+
+      await prisma.order.update({
+        where: {
+          id: orderId,
+        },
+        data: {
+          status: "PAID",
+          customerEmail: session.customer_details?.email || null,
+          stripeSessionId: session.id,
+        },
+      });
+
+      console.log("✅ Order marked as PAID:", orderId);
+    }
+
+    return NextResponse.json({ received: true });
+  } catch (error) {
+    console.error("❌ Webhook DB error:", error);
+    return new NextResponse("Webhook DB error", { status: 500 });
   }
-
-  return NextResponse.json({ received: true });
 }

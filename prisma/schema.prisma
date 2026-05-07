@@ -106,3 +106,28 @@ model SellSubmissionItem {
   submission  SellSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   buylistItem BuylistItem    @relation(fields: [buylistItemId], references: [id], onDelete: Restrict)
 }
+
+model Order {
+  id              String   @id @default(cuid())
+  stripeSessionId String?  @unique
+  customerEmail   String?
+  totalAmount     Float
+  currency        String   @default("aud")
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  name      String
+  price     Float
+  quantity  Int
+  imageUrl  String?
+  createdAt DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
