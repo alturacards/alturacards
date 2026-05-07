@@ -4,7 +4,7 @@ const securityHeaders = [
   {
     key: "Content-Security-Policy",
     value:
-      "default-src 'self'; img-src 'self' https://images.pokemontcg.io data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; frame-src https://checkout.stripe.com;",
+      "default-src 'self'; img-src 'self' https://images.pokemontcg.io https://tcgplayer-cdn.tcgplayer.com data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; frame-src https://checkout.stripe.com;",
   },
   {
     key: "X-Frame-Options",
@@ -26,6 +26,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "images.pokemontcg.io",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "tcgplayer-cdn.tcgplayer.com",
         pathname: "/**",
       },
     ],
