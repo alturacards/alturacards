@@ -11,7 +11,7 @@ type Product = {
   image: string;
   set?: string;
   rarity?: string;
-  quantity?: number;
+  quantity: number;
 };
 
 export default function ShopPage() {
@@ -26,37 +26,33 @@ export default function ShopPage() {
         setLoading(true);
         setError("");
 
-        const res = await fetch("/api/inventory", {
+        const res = await fetch("/api/products", {
           cache: "no-store",
         });
 
         if (!res.ok) {
-          throw new Error("Failed to load inventory");
+          throw new Error("Failed to load products");
         }
 
         const data = await res.json();
 
         const normalized: Product[] = Array.isArray(data)
           ? data
-              .filter((item: any) => Number(item.quantity) > 0)
-              .map((item: any) => ({
-                id: String(item.id ?? ""),
-                name: String(item.name ?? "Unnamed Product"),
-                price: Number(item.price ?? 0),
-                image: String(
-                  item.image || "/placeholder-card.png"
-                ),
+              .filter((item) => Number(item.quantity) > 0)
+              .map((item) => ({
+                id: String(item.id),
+                name: String(item.name),
+                price: Number(item.price),
+                image: String(item.image || "/placeholder-card.png"),
                 set: String(item.set || "Unknown Set"),
-                rarity: String(
-                  item.rarity || "Unknown Rarity"
-                ),
-                quantity: Number(item.quantity ?? 0),
+                rarity: String(item.rarity || "Unknown Rarity"),
+                quantity: Number(item.quantity),
               }))
           : [];
 
         setProducts(normalized);
       } catch (err) {
-        console.error("Failed to load inventory:", err);
+        console.error("Failed to load products:", err);
         setError("Failed to load products");
       } finally {
         setLoading(false);
@@ -76,20 +72,14 @@ export default function ShopPage() {
     });
 
     setMessage(`${product.name} added to cart`);
-
-    setTimeout(() => {
-      setMessage("");
-    }, 2000);
+    setTimeout(() => setMessage(""), 2000);
   };
 
   return (
     <main className="min-h-screen bg-black px-6 py-10 text-white">
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">
-            Shop
-          </h1>
-
+          <h1 className="text-4xl font-bold tracking-tight">Shop</h1>
           <p className="mt-2 text-zinc-400">
             Browse our latest cards and sealed products.
           </p>
@@ -138,33 +128,14 @@ export default function ShopPage() {
                   </h2>
 
                   <div className="mt-2 space-y-1 text-sm text-zinc-400">
-                    <p>
-                      <span className="font-medium text-zinc-300">
-                        Set:
-                      </span>{" "}
-                      {product.set}
-                    </p>
-
-                    <p>
-                      <span className="font-medium text-zinc-300">
-                        Rarity:
-                      </span>{" "}
-                      {product.rarity}
-                    </p>
-
-                    <p>
-                      <span className="font-medium text-zinc-300">
-                        Stock:
-                      </span>{" "}
-                      {product.quantity}
-                    </p>
+                    <p>Set: {product.set}</p>
+                    <p>Rarity: {product.rarity}</p>
+                    <p>Stock: {product.quantity}</p>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xl font-bold text-yellow-400">
-                      ${product.price.toFixed(2)}
-                    </p>
-                  </div>
+                  <p className="mt-4 text-xl font-bold text-yellow-400">
+                    ${product.price.toFixed(2)}
+                  </p>
 
                   <button
                     onClick={() => handleAddToCart(product)}
