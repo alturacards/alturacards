@@ -136,16 +136,6 @@ export default function RefundPolicyPage() {
             </div>
           ))}
         </div>
-
-        <div className="mt-10 rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-6">
-          <h3 className="text-lg font-semibold text-yellow-400">
-            Consumer Rights Notice
-          </h3>
-          <p className="mt-3 text-sm leading-7 text-white/75 md:text-base">
-            Nothing in this policy excludes, restricts, or modifies rights you
-            may have under the Australian Consumer Law.
-          </p>
-        </div>
       </section>
     </main>
   );

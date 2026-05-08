@@ -153,18 +153,6 @@ export default function PrivacyPage() {
             </div>
           ))}
         </div>
-
-        <div className="mt-10 rounded-2xl border border-yellow-500/20 bg-yellow-500/10 p-6">
-          <h3 className="text-lg font-semibold text-yellow-400">
-            Important Notice
-          </h3>
-          <p className="mt-3 text-sm leading-7 text-white/75 md:text-base">
-            Depending on your business size and how you handle customer data,
-            Australian privacy obligations may apply differently. This page is a
-            strong store policy starting point, but you should have it reviewed
-            for full compliance before launch.
-          </p>
-        </div>
       </section>
     </main>
   );
