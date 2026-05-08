@@ -1,59 +1,87 @@
 import { NextResponse } from "next/server";
+import { PriceSource, ProductCategory } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-function formatCategory(category: string): string {
+function normalizeCategory(category: string): ProductCategory {
   switch (category) {
+    case "Single Card":
     case "SINGLE_CARD":
-      return "Single Card";
+      return ProductCategory.SINGLE_CARD;
+    case "Booster Pack":
     case "BOOSTER_PACK":
-      return "Booster Pack";
+      return ProductCategory.BOOSTER_PACK;
+    case "Bundle":
     case "BUNDLE":
-      return "Bundle";
+      return ProductCategory.BUNDLE;
     case "ETB":
-      return "ETB";
+      return ProductCategory.ETB;
     default:
-      return category;
+      return ProductCategory.SINGLE_CARD;
   }
 }
 
 export async function GET() {
   try {
     const items = await prisma.inventoryItem.findMany({
-      where: {
-        inventory: {
-          gt: 0,
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
+      orderBy: { createdAt: "desc" },
+    });
+
+    return NextResponse.json(
+      items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: Number(item.currentPrice ?? 0),
+        image: item.imageUrl,
+        set: item.setName ?? "Unknown Set",
+        rarity: item.rarity ?? "Unknown Rarity",
+        stock: item.inventory ?? 0,
+        quantity: item.inventory ?? 0,
+        category: item.category,
+        featured: item.featured,
+      }))
+    );
+  } catch (error) {
+    console.error("Failed to load admin products:", error);
+    return NextResponse.json(
+      { error: "Failed to load products" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json();
+
+    if (!body.name || !(body.imageUrl || body.image)) {
+      return NextResponse.json(
+        { error: "Name and image URL are required" },
+        { status: 400 }
+      );
+    }
+
+    const product = await prisma.inventoryItem.create({
+      data: {
+        name: body.name,
+        category: normalizeCategory(body.category),
+        imageUrl: body.imageUrl || body.image,
+        currentPrice: Number(body.currentPrice || body.price || 0),
+        manualPrice: Number(body.manualPrice || body.price || 0),
+        inventory: Number(body.inventory || body.quantity || body.stock || 0),
+        priceSource: PriceSource.MANUAL,
+        setName: body.setName || body.set || null,
+        cardNumber: body.cardNumber || null,
+        rarity: body.rarity || null,
+        description: body.description || null,
+        featured: Boolean(body.featured),
       },
     });
 
-    const products = items.map((item) => ({
-      id: item.id,
-      name: item.name,
-      category: formatCategory(String(item.category)),
-      price: item.currentPrice,
-      stock: item.inventory,
-      image: item.imageUrl,
-      description: item.description ?? "",
-      setName: item.setName ?? "",
-      cardNumber: item.cardNumber ?? "",
-      rarity: item.rarity ?? "",
-      featured: item.featured,
-      createdAt: item.createdAt,
-      updatedAt: item.updatedAt,
-    }));
-
-    return NextResponse.json(products);
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    console.error("GET /api/products failed:", error);
-
+    console.error("Failed to save product:", error);
     return NextResponse.json(
-      {
-        error: "Failed to load public products",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
+      { error: "Failed to save product" },
       { status: 500 }
     );
   }
