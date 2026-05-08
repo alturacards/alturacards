@@ -242,3 +242,25 @@ a {
 .border-gold {
   border-color: var(--gold);
 }
+
+/* ------------------------------
+   FEATURED PRODUCT CAROUSEL
+------------------------------ */
+
+@keyframes featured-scroll {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: featured-scroll 35s linear infinite;
+}
+
+.animate-scroll:hover {
+  animation-play-state: paused;
+}
