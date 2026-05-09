@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { addToCart } from "@/lib/cart";
 
+type ProductCategory = "SINGLE_CARD" | "BOOSTER_PACK" | "BUNDLE" | "ETB";
+
 type Product = {
   id: string;
   name: string;
@@ -12,10 +14,12 @@ type Product = {
   set?: string;
   rarity?: string;
   quantity: number;
+  category: ProductCategory;
 };
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -47,6 +51,7 @@ export default function ShopPage() {
                 set: String(item.set || "Unknown Set"),
                 rarity: String(item.rarity || "Unknown Rarity"),
                 quantity: Number(item.quantity),
+                category: String(item.category || "SINGLE_CARD") as ProductCategory,
               }))
           : [];
 
@@ -61,6 +66,11 @@ export default function ShopPage() {
 
     loadProducts();
   }, []);
+
+  const filteredProducts =
+    selectedCategory === "ALL"
+      ? products
+      : products.filter((product) => product.category === selectedCategory);
 
   const handleAddToCart = (product: Product) => {
     addToCart({
@@ -78,11 +88,30 @@ export default function ShopPage() {
   return (
     <main className="min-h-screen bg-black px-6 py-10 text-white">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold tracking-tight">Shop</h1>
-          <p className="mt-2 text-zinc-400">
-            Browse our latest cards and sealed products.
-          </p>
+        <div className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-4xl font-bold tracking-tight">Shop</h1>
+            <p className="mt-2 text-zinc-400">
+              Browse our latest cards and sealed products.
+            </p>
+          </div>
+
+          <div className="w-full md:w-64">
+            <label className="mb-2 block text-sm font-medium text-zinc-300">
+              Filter by category
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-950 px-4 py-3 text-white outline-none transition focus:border-yellow-500"
+            >
+              <option value="ALL">All Products</option>
+              <option value="SINGLE_CARD">Single Cards</option>
+              <option value="BOOSTER_PACK">Booster Packs</option>
+              <option value="BUNDLE">Bundles</option>
+              <option value="ETB">ETBs</option>
+            </select>
+          </div>
         </div>
 
         {message && (
@@ -101,13 +130,13 @@ export default function ShopPage() {
           <div className="py-20 text-center text-zinc-400">
             Loading products...
           </div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-10 text-center text-zinc-400">
-            No products found.
+            No products found in this category.
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <div
                 key={product.id}
                 className="group overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-lg transition duration-300 hover:scale-[1.03] hover:border-yellow-500/50"
