@@ -17,14 +17,37 @@ type CartItem = {
   image?: string;
 };
 
+type CustomerDetails = {
+  name: string;
+  address: string;
+  phone: string;
+};
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
     const cart = body?.cart as CartItem[];
+    const customer = body?.customer as CustomerDetails;
 
     if (!Array.isArray(cart) || cart.length === 0) {
       return NextResponse.json(
         { error: "Cart is empty or invalid" },
+        { status: 400 }
+      );
+    }
+
+    if (
+      !customer ||
+      typeof customer.name !== "string" ||
+      typeof customer.address !== "string" ||
+      typeof customer.phone !== "string" ||
+      customer.name.trim().length === 0 ||
+      customer.address.trim().length === 0 ||
+      customer.phone.trim().length === 0
+    ) {
+      return NextResponse.json(
+        { error: "Delivery details are required" },
         { status: 400 }
       );
     }
@@ -64,11 +87,22 @@ export async function POST(req: NextRequest) {
       return sum + item.price * item.quantity;
     }, 0);
 
+    const cleanCustomer = {
+      name: customer.name.trim(),
+      address: customer.address.trim(),
+      phone: customer.phone.trim(),
+    };
+
     const order = await prisma.order.create({
       data: {
         totalAmount,
         currency: "aud",
         status: "PENDING",
+
+        customerName: cleanCustomer.name,
+        customerAddress: cleanCustomer.address,
+        customerPhone: cleanCustomer.phone,
+
         items: {
           create: validItems.map((item) => ({
             name: item.name.trim(),
@@ -98,6 +132,9 @@ export async function POST(req: NextRequest) {
 
       metadata: {
         orderId: order.id,
+        customerName: cleanCustomer.name,
+        customerAddress: cleanCustomer.address,
+        customerPhone: cleanCustomer.phone,
       },
 
       success_url: `${siteUrl}/cart?success=true&orderId=${order.id}`,

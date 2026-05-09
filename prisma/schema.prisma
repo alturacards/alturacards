@@ -110,10 +110,16 @@ model SellSubmissionItem {
 model Order {
   id              String   @id @default(cuid())
   stripeSessionId String?  @unique
+
   customerEmail   String?
+  customerName    String?
+  customerAddress String?
+  customerPhone   String?
+
   totalAmount     Float
   currency        String   @default("aud")
   status          String   @default("PENDING")
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
