@@ -11,6 +11,12 @@ export default function CartPageContent() {
   const [purchaseSuccess, setPurchaseSuccess] = useState(false);
   const searchParams = useSearchParams();
 
+  const [customer, setCustomer] = useState({
+    name: "",
+    address: "",
+    phone: "",
+  });
+
   const loadCart = () => {
     setCartItems(getCart());
   };
@@ -64,6 +70,11 @@ export default function CartPageContent() {
       return;
     }
 
+    if (!customer.name.trim() || !customer.address.trim() || !customer.phone.trim()) {
+      alert("Please enter your full name, delivery address and contact number.");
+      return;
+    }
+
     try {
       setCheckingOut(true);
 
@@ -72,7 +83,10 @@ export default function CartPageContent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cart: cartItems }),
+        body: JSON.stringify({
+          cart: cartItems,
+          customer,
+        }),
       });
 
       const data = await res.json().catch(() => null);
@@ -181,7 +195,40 @@ export default function CartPageContent() {
             </div>
 
             <div className="h-fit rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-              <h2 className="mb-4 text-2xl font-bold">Order Summary</h2>
+              <h2 className="mb-4 text-2xl font-bold">Delivery Details</h2>
+
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={customer.name}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, name: e.target.value })
+                  }
+                  placeholder="Full name"
+                  className="w-full rounded-xl border border-zinc-700 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                />
+
+                <textarea
+                  value={customer.address}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, address: e.target.value })
+                  }
+                  placeholder="Delivery address"
+                  className="min-h-28 w-full rounded-xl border border-zinc-700 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                />
+
+                <input
+                  type="tel"
+                  value={customer.phone}
+                  onChange={(e) =>
+                    setCustomer({ ...customer, phone: e.target.value })
+                  }
+                  placeholder="Contact number"
+                  className="w-full rounded-xl border border-zinc-700 bg-black px-4 py-3 text-white outline-none focus:border-yellow-500"
+                />
+              </div>
+
+              <h2 className="mb-4 mt-8 text-2xl font-bold">Order Summary</h2>
 
               <div className="mb-3 flex items-center justify-between text-zinc-300">
                 <span>Items</span>
