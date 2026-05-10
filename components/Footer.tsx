@@ -8,29 +8,59 @@ export default function Footer() {
           <h2 className="text-lg font-semibold text-white mb-3">
             AlturaCards
           </h2>
+
           <p className="text-sm">
             Your trusted destination for trading cards in Australia. Buy, sell,
             and collect with confidence.
           </p>
         </div>
 
-        {/* Navigation */}
+        {/* Socials */}
         <div>
-          <h3 className="text-white font-medium mb-3">Quick Links</h3>
+          <h3 className="text-white font-medium mb-3">Follow Us</h3>
+
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="/shop" className="hover:text-white transition">
-                Shop
+              <a
+                href="https://instagram.com/alturacards"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-400 transition"
+              >
+                Instagram @alturacards
               </a>
             </li>
+
             <li>
-              <a href="/sell" className="hover:text-white transition">
-                Sell Your Cards
+              <a
+                href="https://tiktok.com/@alturacards"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-400 transition"
+              >
+                TikTok @alturacards
               </a>
             </li>
+
             <li>
-              <a href="/cart" className="hover:text-white transition">
-                Cart
+              <a
+                href="https://facebook.com/alturacards"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-400 transition"
+              >
+                Facebook
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://youtube.com/@alturacards"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-yellow-400 transition"
+              >
+                YouTube
               </a>
             </li>
           </ul>
@@ -39,19 +69,25 @@ export default function Footer() {
         {/* Legal / Contact */}
         <div>
           <h3 className="text-white font-medium mb-3">Legal</h3>
+
           <ul className="space-y-2 text-sm">
             <li>
               <a href="/terms" className="hover:text-white transition">
                 Terms & Conditions
               </a>
             </li>
+
             <li>
               <a href="/privacy" className="hover:text-white transition">
                 Privacy Policy
               </a>
             </li>
+
             <li>
-              <a href="/refund-policy" className="hover:text-white transition">
+              <a
+                href="/refund-policy"
+                className="hover:text-white transition"
+              >
                 Refund Policy
               </a>
             </li>
@@ -69,8 +105,10 @@ export default function Footer() {
         <p>
           © {new Date().getFullYear()} AlturaCards. All rights reserved.
         </p>
+
         <p className="mt-1">
-          AlturaCards operates in Australia in accordance with Australian Consumer Law.
+          AlturaCards operates in Australia in accordance with Australian
+          Consumer Law.
         </p>
       </div>
     </footer>
