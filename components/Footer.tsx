@@ -1,76 +1,62 @@
+import { Camera, Music2 } from "lucide-react";
+
 export default function Footer() {
   return (
     <footer className="bg-black text-gray-400 border-t border-gray-800 mt-16">
-      <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
         
         {/* Brand */}
         <div>
-          <h2 className="text-lg font-semibold text-white mb-3">
+          <h2 className="text-3xl font-bold text-white mb-4">
             AlturaCards
           </h2>
 
-          <p className="text-sm">
-            Your trusted destination for trading cards in Australia. Buy, sell,
-            and collect with confidence.
+          <p className="text-base leading-8 max-w-sm">
+            Your trusted destination for trading cards in Australia. Buy,
+            sell, and collect with confidence.
           </p>
         </div>
 
         {/* Socials */}
         <div>
-          <h3 className="text-white font-medium mb-3">Follow Us</h3>
+          <h3 className="text-3xl font-bold text-white mb-6">
+            Follow Us
+          </h3>
 
-          <ul className="space-y-2 text-sm">
-            <li>
-              <a
-                href="https://instagram.com/alturacards"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-yellow-400 transition"
-              >
+          <div className="space-y-5">
+            <a
+              href="https://instagram.com/alturacards"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 hover:text-yellow-400 transition"
+            >
+              <Camera size={34} />
+              <span className="text-2xl">
                 Instagram @alturacards
-              </a>
-            </li>
+              </span>
+            </a>
 
-            <li>
-              <a
-                href="https://tiktok.com/@alturacards"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-yellow-400 transition"
-              >
+            <a
+              href="https://tiktok.com/@alturacards"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-4 hover:text-yellow-400 transition"
+            >
+              <Music2 size={34} />
+              <span className="text-2xl">
                 TikTok @alturacards
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://facebook.com/alturacards"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-yellow-400 transition"
-              >
-                Facebook
-              </a>
-            </li>
-
-            <li>
-              <a
-                href="https://youtube.com/@alturacards"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-yellow-400 transition"
-              >
-                YouTube
-              </a>
-            </li>
-          </ul>
+              </span>
+            </a>
+          </div>
         </div>
 
         {/* Legal / Contact */}
         <div>
-          <h3 className="text-white font-medium mb-3">Legal</h3>
+          <h3 className="text-3xl font-bold text-white mb-6">
+            Legal
+          </h3>
 
-          <ul className="space-y-2 text-sm">
+          <ul className="space-y-5 text-2xl">
             <li>
               <a href="/terms" className="hover:text-white transition">
                 Terms & Conditions
@@ -93,7 +79,7 @@ export default function Footer() {
             </li>
           </ul>
 
-          <div className="mt-4 text-sm">
+          <div className="mt-8 pt-6 border-t border-gray-800 text-lg space-y-3">
             <p>Email: alturacards@alturacards.com</p>
             <p>ABN: 59 819 080 066</p>
           </div>
@@ -101,12 +87,12 @@ export default function Footer() {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800 text-center text-xs py-4 text-gray-500">
+      <div className="border-t border-gray-800 text-center text-sm py-6 text-gray-500 px-6">
         <p>
           © {new Date().getFullYear()} AlturaCards. All rights reserved.
         </p>
 
-        <p className="mt-1">
+        <p className="mt-2">
           AlturaCards operates in Australia in accordance with Australian
           Consumer Law.
         </p>
