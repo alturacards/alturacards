@@ -1,27 +1,18 @@
-import { Camera, Music2 } from "lucide-react";
-
 export default function Footer() {
   return (
     <footer className="bg-black text-gray-400 border-t border-gray-800 mt-16">
       <div className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-10">
-        
-        {/* Brand */}
         <div>
-          <h2 className="text-3xl font-bold text-white mb-4">
-            AlturaCards
-          </h2>
+          <h2 className="text-3xl font-bold text-white mb-4">AlturaCards</h2>
 
           <p className="text-base leading-8 max-w-sm">
-            Your trusted destination for trading cards in Australia. Buy,
-            sell, and collect with confidence.
+            Your trusted destination for trading cards in Australia. Buy, sell,
+            and collect with confidence.
           </p>
         </div>
 
-        {/* Socials */}
         <div>
-          <h3 className="text-3xl font-bold text-white mb-6">
-            Follow Us
-          </h3>
+          <h3 className="text-3xl font-bold text-white mb-6">Follow Us</h3>
 
           <div className="space-y-5">
             <a
@@ -30,10 +21,10 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="flex items-center gap-4 hover:text-yellow-400 transition"
             >
-              <Camera size={34} />
-              <span className="text-2xl">
-                Instagram @alturacards
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 text-white font-bold text-lg">
+                ◎
               </span>
+              <span className="text-2xl">Instagram @alturacards</span>
             </a>
 
             <a
@@ -42,19 +33,16 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="flex items-center gap-4 hover:text-yellow-400 transition"
             >
-              <Music2 size={34} />
-              <span className="text-2xl">
-                TikTok @alturacards
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-black font-bold text-lg">
+                ♪
               </span>
+              <span className="text-2xl">TikTok @alturacards</span>
             </a>
           </div>
         </div>
 
-        {/* Legal / Contact */}
         <div>
-          <h3 className="text-3xl font-bold text-white mb-6">
-            Legal
-          </h3>
+          <h3 className="text-3xl font-bold text-white mb-6">Legal</h3>
 
           <ul className="space-y-5 text-2xl">
             <li>
@@ -70,10 +58,7 @@ export default function Footer() {
             </li>
 
             <li>
-              <a
-                href="/refund-policy"
-                className="hover:text-white transition"
-              >
+              <a href="/refund-policy" className="hover:text-white transition">
                 Refund Policy
               </a>
             </li>
@@ -86,11 +71,8 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-gray-800 text-center text-sm py-6 text-gray-500 px-6">
-        <p>
-          © {new Date().getFullYear()} AlturaCards. All rights reserved.
-        </p>
+        <p>© {new Date().getFullYear()} AlturaCards. All rights reserved.</p>
 
         <p className="mt-2">
           AlturaCards operates in Australia in accordance with Australian
