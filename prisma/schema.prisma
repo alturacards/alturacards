@@ -77,13 +77,25 @@ model BuylistItem {
 
 model SellSubmission {
   id             String           @id @default(cuid())
+  buylistId      String           @unique
+
   fullName       String
+  firstName      String?
+  lastName       String?
   email          String
   phone          String?
-  buylistId      String           @unique
+
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  state          String?
+  postcode       String?
+  country        String?
+
   notes          String?
   status         SubmissionStatus @default(PENDING)
   estimatedTotal Float            @default(0)
+
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 

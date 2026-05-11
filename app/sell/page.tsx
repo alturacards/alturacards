@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 type BuylistItem = {
@@ -32,11 +33,23 @@ export default function SellPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [notes, setNotes] = useState("");
 
-  const [selectedCards, setSelectedCards] = useState<Record<string, SelectedCard>>({});
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [addressLine1, setAddressLine1] = useState("");
+  const [addressLine2, setAddressLine2] = useState("");
+  const [city, setCity] = useState("");
+  const [stateRegion, setStateRegion] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [country, setCountry] = useState("Australia");
+  const [phone, setPhone] = useState("");
+  const [notes, setNotes] = useState("");
+  const [agreed, setAgreed] = useState(false);
+
+  const [selectedCards, setSelectedCards] = useState<
+    Record<string, SelectedCard>
+  >({});
 
   async function loadBuylist() {
     try {
@@ -180,12 +193,25 @@ export default function SellPage() {
   }
 
   async function handleSubmit() {
-    const customerName = fullName.trim();
+    const customerName = `${firstName.trim()} ${lastName.trim()}`.trim();
     const customerEmail = email.trim();
-    const customerNotes = notes.trim();
 
-    if (!customerName || !customerEmail) {
-      alert("Please enter your full name and email.");
+    if (
+      !customerName ||
+      !customerEmail ||
+      !addressLine1.trim() ||
+      !city.trim() ||
+      !stateRegion.trim() ||
+      !postcode.trim() ||
+      !country.trim() ||
+      !phone.trim()
+    ) {
+      alert("Please complete all required contact and address fields.");
+      return;
+    }
+
+    if (!agreed) {
+      alert("Please agree to the sell submission terms before continuing.");
       return;
     }
 
@@ -205,7 +231,16 @@ export default function SellPage() {
       const payload = {
         customerName,
         customerEmail,
-        notes: customerNotes,
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        addressLine1: addressLine1.trim(),
+        addressLine2: addressLine2.trim(),
+        city: city.trim(),
+        state: stateRegion.trim(),
+        postcode: postcode.trim(),
+        country: country.trim(),
+        phone: phone.trim(),
+        notes: notes.trim(),
         items: selectedItemsDetailed.map((entry) => ({
           buylistItemId: entry.buylistItemId,
           name: entry.item.name,
@@ -267,19 +302,83 @@ export default function SellPage() {
 
             <div className="mt-8 grid gap-4 md:grid-cols-2">
               <input
+                type="email"
+                placeholder="Email Address *"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400 md:col-span-2"
+              />
+
+              <input
                 type="text"
-                placeholder="Full Name"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                placeholder="First Name *"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
                 className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
               />
 
               <input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Last Name *"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Address Line 1 *"
+                value={addressLine1}
+                onChange={(e) => setAddressLine1(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400 md:col-span-2"
+              />
+
+              <input
+                type="text"
+                placeholder="Address Line 2"
+                value={addressLine2}
+                onChange={(e) => setAddressLine2(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400 md:col-span-2"
+              />
+
+              <input
+                type="text"
+                placeholder="City *"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
+              />
+
+              <input
+                type="text"
+                placeholder="State / Region *"
+                value={stateRegion}
+                onChange={(e) => setStateRegion(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Postcode *"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
+              />
+
+              <input
+                type="text"
+                placeholder="Country *"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400"
+              />
+
+              <input
+                type="tel"
+                placeholder="Phone *"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400 md:col-span-2"
               />
 
               <textarea
@@ -289,6 +388,21 @@ export default function SellPage() {
                 rows={4}
                 className="rounded-2xl border border-zinc-800 bg-black px-4 py-3 text-white outline-none focus:border-yellow-400 md:col-span-2"
               />
+
+              <label className="flex gap-3 rounded-2xl border border-zinc-800 bg-black p-4 text-sm leading-6 text-zinc-300 md:col-span-2">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                  className="mt-1 h-4 w-4 accent-yellow-500"
+                />
+                <span>
+                  I agree to submit my cards sorted in the same order as this
+                  submission. I understand that incorrect condition, incorrect
+                  card versions, or unsorted submissions may result in adjusted
+                  payout or rejection.
+                </span>
+              </label>
             </div>
           </div>
 
@@ -310,13 +424,24 @@ export default function SellPage() {
               </p>
 
               <p>
-                Sort your cards in the same order as your submission to make
-                processing faster.
+                Please read our{" "}
+                <Link
+                  href="/condition-guide"
+                  className="font-semibold text-yellow-400 underline underline-offset-4 hover:text-yellow-300"
+                >
+                  Conditions Guide
+                </Link>{" "}
+                before submitting your cards.
               </p>
 
               <p>
-                Once your submission is sent, follow the shipping instructions
-                on the success page.
+                Include your Buylist ID inside your package so we can identify
+                your submission.
+              </p>
+
+              <p>
+                Sort your cards in the same order as your submission to make
+                processing faster.
               </p>
 
               <p>
@@ -425,7 +550,6 @@ export default function SellPage() {
                                   type="button"
                                   disabled
                                   className="cursor-not-allowed rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-sm font-semibold text-zinc-500 opacity-60"
-                                  title="Near Mint is not available yet"
                                 >
                                   Near Mint
                                 </button>
