@@ -36,9 +36,7 @@ export default function SellPage() {
   const [email, setEmail] = useState("");
   const [notes, setNotes] = useState("");
 
-  const [selectedCards, setSelectedCards] = useState<Record<string, SelectedCard>>(
-    {}
-  );
+  const [selectedCards, setSelectedCards] = useState<Record<string, SelectedCard>>({});
 
   async function loadBuylist() {
     try {
@@ -90,7 +88,10 @@ export default function SellPage() {
   const selectedItemsDetailed = useMemo(() => {
     return selectedEntries
       .map((entry) => {
-        const item = buylistItems.find((buylistItem) => buylistItem.id === entry.buylistItemId);
+        const item = buylistItems.find(
+          (buylistItem) => buylistItem.id === entry.buylistItemId
+        );
+
         if (!item) return null;
 
         return {
@@ -179,7 +180,11 @@ export default function SellPage() {
   }
 
   async function handleSubmit() {
-    if (!fullName.trim() || !email.trim()) {
+    const customerName = fullName.trim();
+    const customerEmail = email.trim();
+    const customerNotes = notes.trim();
+
+    if (!customerName || !customerEmail) {
       alert("Please enter your full name and email.");
       return;
     }
@@ -189,17 +194,26 @@ export default function SellPage() {
       return;
     }
 
+    if (estimatedTotal < 50) {
+      alert("Minimum sell submission value is $50 AUD.");
+      return;
+    }
+
     try {
       setSubmitting(true);
 
       const payload = {
-        fullName,
-        email,
-        notes,
-        cards: selectedItemsDetailed.map((entry) => ({
+        customerName,
+        customerEmail,
+        notes: customerNotes,
+        items: selectedItemsDetailed.map((entry) => ({
           buylistItemId: entry.buylistItemId,
-          quantity: entry.quantity,
+          name: entry.item.name,
+          setName: entry.item.setName,
+          cardNumber: entry.item.cardNumber,
           condition: "MINT",
+          quantity: entry.quantity,
+          estimatedPrice: entry.item.buyPrice,
         })),
       };
 
@@ -220,13 +234,13 @@ export default function SellPage() {
       router.push(
         `/sell/success?buylistId=${encodeURIComponent(
           data?.buylistId || ""
-        )}&total=${encodeURIComponent(String(data?.estimatedTotal || 0))}`
+        )}&total=${encodeURIComponent(
+          String(data?.submission?.estimatedTotal || estimatedTotal)
+        )}`
       );
     } catch (error) {
       console.error("Submission failed:", error);
-      alert(
-        error instanceof Error ? error.message : "Failed to submit cards"
-      );
+      alert(error instanceof Error ? error.message : "Failed to submit cards");
     } finally {
       setSubmitting(false);
     }
@@ -290,7 +304,10 @@ export default function SellPage() {
                 cards.
               </p>
 
-    
+              <p>
+                Minimum sell submission value is{" "}
+                <span className="font-semibold text-yellow-300">$50 AUD</span>.
+              </p>
 
               <p>
                 Sort your cards in the same order as your submission to make
@@ -459,7 +476,9 @@ export default function SellPage() {
           </div>
 
           <aside className="h-fit rounded-3xl border border-zinc-800 bg-zinc-950 p-6">
-            <h2 className="text-2xl font-bold text-white">Submission Summary</h2>
+            <h2 className="text-2xl font-bold text-white">
+              Submission Summary
+            </h2>
 
             {selectedItemsDetailed.length === 0 ? (
               <p className="mt-4 text-sm leading-7 text-zinc-400">
@@ -478,11 +497,13 @@ export default function SellPage() {
                           <p className="font-semibold text-white">
                             {entry.item.name}
                           </p>
+
                           {entry.item.setName && (
                             <p className="mt-1 text-xs text-zinc-400">
                               {entry.item.setName}
                             </p>
                           )}
+
                           <p className="mt-2 text-sm text-zinc-400">
                             Mint × {entry.quantity}
                           </p>
@@ -506,6 +527,12 @@ export default function SellPage() {
                     <span>Estimated Total</span>
                     <span>${estimatedTotal.toFixed(2)}</span>
                   </div>
+
+                  {estimatedTotal > 0 && estimatedTotal < 50 && (
+                    <p className="rounded-xl border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-200">
+                      Minimum submission value is $50 AUD.
+                    </p>
+                  )}
                 </div>
               </>
             )}
