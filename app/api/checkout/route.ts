@@ -118,6 +118,12 @@ export async function POST(req: NextRequest) {
       mode: "payment",
       payment_method_types: ["card"],
 
+      shipping_address_collection: {
+        allowed_countries: ["AU"],
+      },
+
+      billing_address_collection: "required",
+
       line_items: validItems.map((item) => ({
         quantity: item.quantity,
         price_data: {
@@ -135,6 +141,7 @@ export async function POST(req: NextRequest) {
         customerName: cleanCustomer.name,
         customerAddress: cleanCustomer.address,
         customerPhone: cleanCustomer.phone,
+        shippingCountry: "AU_ONLY",
       },
 
       success_url: `${siteUrl}/cart?success=true&orderId=${order.id}`,
