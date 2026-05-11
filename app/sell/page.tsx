@@ -396,6 +396,7 @@ export default function SellPage() {
                   onChange={(e) => setAgreed(e.target.checked)}
                   className="mt-1 h-4 w-4 accent-yellow-500"
                 />
+
                 <span>
                   I agree to submit my cards sorted in the same order as this
                   submission. I understand that incorrect condition, incorrect
@@ -424,17 +425,6 @@ export default function SellPage() {
               </p>
 
               <p>
-                Please read our{" "}
-                <Link
-                  href="/condition-guide"
-                  className="font-semibold text-yellow-400 underline underline-offset-4 hover:text-yellow-300"
-                >
-                  Conditions Guide
-                </Link>{" "}
-                before submitting your cards.
-              </p>
-
-              <p>
                 Include your Buylist ID inside your package so we can identify
                 your submission.
               </p>
@@ -448,6 +438,15 @@ export default function SellPage() {
                 If the condition received does not match the stated condition,
                 your final payout may be adjusted.
               </p>
+
+              <p>
+                <Link
+                  href="/condition-guide"
+                  className="font-semibold text-yellow-400 underline underline-offset-4 transition hover:text-yellow-300"
+                >
+                  Click here to check our card condition guide.
+                </Link>
+              </p>
             </div>
           </aside>
         </section>
@@ -459,6 +458,7 @@ export default function SellPage() {
                 <h2 className="text-2xl font-bold text-white">
                   Cards We Are Buying
                 </h2>
+
                 <p className="mt-2 text-sm text-zinc-400">
                   Search the buylist and add the cards you want to submit.
                 </p>
@@ -520,6 +520,7 @@ export default function SellPage() {
 
                             <div className="text-left md:text-right">
                               <p className="text-sm text-zinc-400">We Pay</p>
+
                               <p className="text-2xl font-bold text-yellow-400">
                                 ${item.buyPrice.toFixed(2)}
                               </p>
